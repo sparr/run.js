@@ -108,12 +108,21 @@ process.stdin.setEncoding('utf8')
  * @return Boolean
  */
 ;function checkIgnore(path) {
+  ignore = false
   for (var i = 0, pattern; pattern = ignoreFiles[i]; i++) {
-    if (minimatch(path, pattern)) {
-      return true
+    if (pattern[0] == "!") {
+      if (!minimatch(path, pattern)) {
+        // not matching a negated pattern means this path does match the underlying pattern
+        // so a previous ignore should be overridden
+        ignore = false
+      }
+    } else {
+      if (minimatch(path,pattern)) {
+        ignore = true
+      }
     }
   }
-  return false
+  return ignore
 }
 
 
